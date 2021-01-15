@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <script>
+        const nameList = [];
+        var JavaScriptDOM = [];
+        var readMeURL = [];
+        const openReadMe = [];
+        var counter = 0;
+
+        document.write('<input type="text" id="gitUsername" placeholder="Enter a Github Username">');
+        document.write('<button type="submit" onclick="retrieveGitHub()">Submit</button>');
+        document.write('<p>List of Repositories</p>');
+        document.write('<ul id = "list"></ul>');
+        document.write('<p id = "ReadMe"></p>');
+
+        function retrieveGitHub()
+        {            
+            document.getElementById('list').innerHTML = "";
+
+            var request = new XMLHttpRequest();
+
+            var gitUsername = document.getElementById("gitUsername").value;
+            
+            request.onload = XMLResponse;
+            request.open('get', 'https://api.github.com/users/' + gitUsername + '/repos?' + 'accesstoken=8be7510f07e4a5d0461eb47e212b6e19f9bfe958');
+            request.send();   
+        }   
+
+        function retrieveReadMe(url)
+        {
+            var request = new XMLHttpRequest();
+
+            request.open('get', url);
+            request.onload = readMeResponse; // This runs recursively as long as there are repos links that are not "opened"
+            request.send();  
+        }
+
+        function XMLResponse() {
+            var jsonFormat = JSON.parse(this.responseText);
+            try
+            {
+                for (i = 0; i < jsonFormat.length; i++)
+                {
+                    nameList.push(jsonFormat[i]['name']);
+                    readMeURL.push(jsonFormat[i]['url'] + '/readme'); // This is needed to retrieve the Raw link to README
+                    retrieveReadMe(readMeURL[i]);
+                }
+            }
+            catch(error){
+                TypeError
+            }
+
+            // Storing a unordered list type of repo in a DOM format
+            for (i = 0; i < nameList.length; i++)
+            {             
+                JavaScriptDOM.push('<li onclick="fetchReadMe(' + i + ')" id="nameList[i]">' + nameList[i] + '</li>');
+            }
+
+            // Displaying the list of repo.
+            for(i in JavaScriptDOM)
+            {
+                document.getElementById('list').innerHTML += JavaScriptDOM[i]; // Without increment, it will only add the last repo.
+            }
+            // console.log(nameList);
+            // console.log(readMeURL);
+        }
+
+        function readMeResponse()
+        {
+            // var jsonFormat = JSON.parse(this.responseText);
+            var gitUsername = document.getElementById("gitUsername").value;
+            var name = nameList[counter];
+            openReadMe.push("https://raw.githubusercontent.com/" + gitUsername + "/" + name + "/master/README.md"); // Raw link to README file
+            counter++;
+        }
+
+        function fetchReadMe(counter)
+        {   
+            fetch(openReadMe[counter])
+            .then(response => response.text())
+            .then(data => document.getElementById('ReadMe').innerHTML = data);
+        }
+    </script>
+</html>
+
+<!-- TEST CASES -->
+<!-- AppDevIn -->

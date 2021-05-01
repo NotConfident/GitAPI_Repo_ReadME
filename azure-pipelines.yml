@@ -24,3 +24,9 @@ steps:
 
 - script: composer install --no-interaction --prefer-dist
   displayName: 'composer install'
+
+- script: |
+    sudo apt update
+    sudo apt install php libapache2-mod-php
+    sudo systemctl restart apache2
+  displayName: 'Install dependencies'

@@ -33,5 +33,7 @@ steps:
   displayName: 'Use PHP version $(phpVersion)'
 
 - script: |
+    cd /home/teeyongteng/_work/5/s
+    composer update
     composer install --no-interaction --prefer-dist
   displayName: 'composer install'
